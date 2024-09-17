@@ -504,9 +504,10 @@ public class TestExampleGenerator extends TestFmwk {
     private void checkCompoundUnits(String locale, String[][] tests) {
         ExampleGenerator exampleGenerator = getExampleGenerator(locale);
         for (String[] test : tests) {
-            String actual =
-                    exampleGenerator.handleCompoundUnit(
-                            UnitLength.valueOf(test[1]), test[0], Count.valueOf(test[2]));
+            List<String> examples = new ArrayList<>();
+            exampleGenerator.handleCompoundUnit(
+                    UnitLength.valueOf(test[1]), test[0], Count.valueOf(test[2]), examples);
+            String actual = exampleGenerator.formatExampleList(examples);
             assertEquals("CompoundUnit", test[3], ExampleGenerator.simplify(actual, true));
         }
     }
@@ -566,10 +567,10 @@ public class TestExampleGenerator extends TestFmwk {
         for (String[] test : tests) {
 
             ExampleGenerator exampleGenerator = getExampleGenerator(test[0]);
-
-            String actual =
-                    exampleGenerator.handleCompoundUnit1(
-                            UnitLength.valueOf(test[1]), Count.valueOf(test[2]), test[3]);
+            List<String> examples = new ArrayList<>();
+            exampleGenerator.handleCompoundUnit1(
+                    UnitLength.valueOf(test[1]), Count.valueOf(test[2]), test[3], examples);
+            String actual = exampleGenerator.formatExampleList(examples);
             assertEquals("CompoundUnit", test[4], ExampleGenerator.simplify(actual, true));
         }
     }
@@ -1800,22 +1801,33 @@ public class TestExampleGenerator extends TestFmwk {
     }
 
     public void TestRelative() {
-        ExampleGenerator exampleGenerator = getExampleGenerator("it");
+        ExampleGenerator exampleGeneratorIt = getExampleGenerator("it");
+        ExampleGenerator exampleGeneratorAm = getExampleGenerator("am");
         checkValue(
                 "it relative day type 2",
                 "〖Dopodomani (5 settembre)〗〖5 settembre (dopodomani)〗",
-                exampleGenerator,
+                exampleGeneratorIt,
                 "//ldml/dates/fields/field[@type=\"day\"]/relative[@type=\"2\"]");
         checkValue(
                 "it relative hour future-other",
                 "〖Tra ❬10❭ ore (18:25)〗〖18:25 (tra ❬10❭ ore)〗",
-                exampleGenerator,
+                exampleGeneratorIt,
                 "//ldml/dates/fields/field[@type=\"hour\"]/relativeTime[@type=\"future\"]/relativeTimePattern[@count=\"other\"]");
         checkValue(
                 "it relative year past-one",
                 "〖❬1❭ anno fa (settembre 1999)〗〖settembre 1999 (❬1❭ anno fa)〗",
-                exampleGenerator,
+                exampleGeneratorIt,
                 "//ldml/dates/fields/field[@type=\"year\"]/relativeTime[@type=\"past\"]/relativeTimePattern[@count=\"one\"]");
+        checkValue(
+                "am relative month future-one",
+                "〖በ❬1❭ ወር ውስጥ (ሴፕቴምበር 1999)〗〖ሴፕቴምበር 1999 (በ❬1❭ ወር ውስጥ)〗",
+                exampleGeneratorAm,
+                "//ldml/dates/fields/field[@type=\"month\"]/relativeTime[@type=\"future\"]/relativeTimePattern[@count=\"one\"]");
+        checkValue(
+                "am relative month future-one",
+                "〖በ❬10❭ ወራት ውስጥ (ሴፕቴምበር 1999)〗〖ሴፕቴምበር 1999 (በ❬10❭ ወራት ውስጥ)〗",
+                exampleGeneratorAm,
+                "//ldml/dates/fields/field[@type=\"month\"]/relativeTime[@type=\"future\"]/relativeTimePattern[@count=\"other\"]");
     }
 
     static final class MissingKey implements Comparable<MissingKey> {
